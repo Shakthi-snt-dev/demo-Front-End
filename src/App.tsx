@@ -1,40 +1,174 @@
-import React, { useState } from 'react';
-import { Dashboard } from './components/Dashboard';
-import { POSCheckout } from './components/POSCheckout';
-import { Inventory } from './components/Inventory';
-import { Customers } from './components/Customers';
-import { Reports } from './components/Reports';
-import { Settings } from './components/Settings';
-import { Tickets } from './components/Tickets';
-import { Employees } from './components/Employees';
-import { Subscription } from './components/Subscription';
-import { Login } from './components/Login';
-import { Sidebar } from './components/Sidebar';
-import { Integrations } from './components/Integrations';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from '@/components/ui/toaster'
+import { ProtectedRoute } from '@/components/protected-route'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+// Auth pages
+import LoginPage from '@/pages/auth/login'
+import SignupPage from '@/pages/auth/signup'
+import ForgotPasswordPage from '@/pages/auth/forgot-password'
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
-  }
+// Onboarding pages
+import ProfileSetupPage from '@/pages/onboarding/profile-setup'
+import ContactInfoPage from '@/pages/onboarding/contact-info'
 
+// Dashboard
+import DashboardPage from '@/pages/dashboard/index'
+
+// POS
+import POSPage from '@/pages/pos/index'
+
+// Other modules
+import InventoryPage from '@/pages/inventory/index'
+import RepairsPage from '@/pages/repairs/index'
+import CustomersPage from '@/pages/customers/index'
+import ReportsPage from '@/pages/reports/index'
+import SettingsPage from '@/pages/settings/index'
+import EmployeesPage from '@/pages/employees/index'
+import ChatPage from '@/pages/chat/index'
+
+function App() {
   return (
-    <div className="flex h-screen bg-slate-50">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      <div className="flex-1 overflow-auto">
-        {currentPage === 'dashboard' && <Dashboard />}
-        {currentPage === 'pos' && <POSCheckout />}
-        {currentPage === 'inventory' && <Inventory />}
-        {currentPage === 'customers' && <Customers />}
-        {currentPage === 'tickets' && <Tickets />}
-        {currentPage === 'employees' && <Employees />}
-        {currentPage === 'reports' && <Reports />}
-        {currentPage === 'integrations' && <Integrations />}
-        {currentPage === 'subscription' && <Subscription />}
-        {currentPage === 'settings' && <Settings />}
-      </div>
-    </div>
-  );
+    <BrowserRouter>
+      <Routes>
+        {/* Auth routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        {/* Onboarding routes */}
+        <Route
+          path="/onboarding/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileSetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding/contact"
+          element={
+            <ProtectedRoute>
+              <ContactInfoPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Dashboard routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+        </Route>
+        
+        {/* POS route */}
+        <Route
+          path="/pos"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<POSPage />} />
+        </Route>
+
+        {/* Inventory route */}
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<InventoryPage />} />
+        </Route>
+
+        {/* Repairs route */}
+        <Route
+          path="/repairs"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<RepairsPage />} />
+        </Route>
+
+        {/* Customers route */}
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<CustomersPage />} />
+        </Route>
+
+        {/* Reports route */}
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ReportsPage />} />
+        </Route>
+
+        {/* Settings route */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<SettingsPage />} />
+        </Route>
+
+        {/* Employees route */}
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<EmployeesPage />} />
+        </Route>
+
+        {/* Chat route */}
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<ChatPage />} />
+        </Route>
+
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+      <Toaster />
+    </BrowserRouter>
+  )
 }
+
+export default App
