@@ -4,28 +4,28 @@ import { ProtectedRoute } from '@/components/protected-route'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 
 // Auth pages
-import LoginPage from '@/pages/auth/login'
-import SignupPage from '@/pages/auth/signup'
-import ForgotPasswordPage from '@/pages/auth/forgot-password'
+import LoginPage from '@/Pages/auth/login'
+import SignupPage from '@/Pages/auth/signup'
+import ForgotPasswordPage from '@/Pages/auth/forgot-password'
 
 // Onboarding pages
-import ProfileSetupPage from '@/pages/onboarding/profile-setup'
-import ContactInfoPage from '@/pages/onboarding/contact-info'
+import ProfileSetupPage from '@/Pages/onboarding/profile-setup'
+import ContactInfoPage from '@/Pages/onboarding/contact-info'
 
 // Dashboard
-import DashboardPage from '@/pages/dashboard/index'
+import DashboardPage from '@/Pages/dashboard/index'
 
 // POS
-import POSPage from '@/pages/pos/index'
+import POSPage from '@/Pages/pos/index'
 
 // Other modules
-import InventoryPage from '@/pages/inventory/index'
-import RepairsPage from '@/pages/repairs/index'
-import CustomersPage from '@/pages/customers/index'
-import ReportsPage from '@/pages/reports/index'
-import SettingsPage from '@/pages/settings/index'
-import EmployeesPage from '@/pages/employees/index'
-import ChatPage from '@/pages/chat/index'
+import InventoryPage from '@/Pages/inventory/index'
+import RepairsPage from '@/Pages/repairs/index'
+import CustomersPage from '@/Pages/customers/index'
+import ReportsPage from '@/Pages/reports/index'
+import SettingsPage from '@/Pages/settings/index'
+import EmployeesPage from '@/Pages/employees/index'
+import ChatPage from '@/Pages/chat/index'
 
 function App() {
   return (

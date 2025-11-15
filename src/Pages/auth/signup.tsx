@@ -49,16 +49,19 @@ export default function SignupPage() {
       }))
       
       if (registerUser.fulfilled.match(result)) {
+        // Show API response message or default message
+        const successMessage = result.payload.message || 'Account created successfully!'
         toast({
-          title: 'Account created!',
-          description: 'Please check your email to verify your account.',
+          title: 'Success!',
+          description: successMessage,
         })
         // Simulate email verification redirect
         setTimeout(() => {
           navigate('/onboarding/profile')
         }, 2000)
       } else if (registerUser.rejected.match(result)) {
-        const errorMessage = result.error.message || 'Something went wrong'
+        // Get error message from payload (rejectWithValue)
+        const errorMessage = (result.payload as string) || result.error?.message || 'Something went wrong'
         toast({
           title: 'Signup failed',
           description: errorMessage,

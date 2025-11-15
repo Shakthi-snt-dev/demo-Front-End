@@ -4,7 +4,12 @@
  */
 
 import { api } from '@/lib/api-client'
-import type { User } from '@/types'
+import type { 
+  User, 
+  RegisterResponse, 
+  VerifyEmailResponse, 
+  LoginResponse 
+} from '@/lib/api-client'
 
 // Helper function to build query string from params
 const buildQueryString = (params?: Record<string, string | number | undefined>): string => {
@@ -25,20 +30,32 @@ const buildQueryString = (params?: Record<string, string | number | undefined>):
 // AUTH API
 // ============================================
 export const authService = {
-  login: (email: string, password: string) =>
-    api.post<{ token: string; user: User }>('/auth/login', { email, password }),
+  // Register new user
+  register: (data: { email: string; username: string; password: string; confirmPassword: string }) =>
+    api.post<RegisterResponse>('/Auth/register', data),
   
+  // Verify email with token (GET request with query parameter)
+  verifyEmail: (token: string) =>
+    api.get<VerifyEmailResponse>(`/Auth/verify-email?token=${encodeURIComponent(token)}`),
+  
+  // Login user
+  login: (email: string, password: string) =>
+    api.post<LoginResponse>('/Auth/login', { email, password }),
+  
+  // Legacy methods for backward compatibility
   signup: (data: { email: string; password: string; username: string }) =>
-    api.post<{ token: string; user: User }>('/auth/signup', data),
+    api.post<RegisterResponse>('/Auth/register', { 
+      email: data.email, 
+      username: data.username, 
+      password: data.password, 
+      confirmPassword: data.password 
+    }),
   
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }),
   
   resetPassword: (token: string, password: string) =>
     api.post('/auth/reset-password', { token, password }),
-  
-  verifyEmail: (token: string) =>
-    api.post('/auth/verify-email', { token }),
   
   logout: () =>
     api.post('/auth/logout'),

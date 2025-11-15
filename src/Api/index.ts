@@ -16,7 +16,13 @@
 
 // Base API client and utilities
 export { api, ApiError } from '@/lib/api-client'
-export type { User, SignupData } from '@/lib/api-client'
+export type { 
+  User, 
+  SignupData,
+  RegisterResponse,
+  VerifyEmailResponse,
+  LoginResponse
+} from '@/lib/api-client'
 
 // Legacy authApi (for backward compatibility)
 export { authApi } from '@/lib/api-client'
@@ -33,7 +39,7 @@ export {
   reportsService,
   settingsService,
   chatService,
-} from './services'
+} from '@/Api/services'
 
 // API Namespace - All APIs organized by feature
 // Use this for better organization and autocomplete
@@ -48,7 +54,7 @@ import {
   reportsService,
   settingsService,
   chatService,
-} from './services'
+} from '@/Api/services'
 import { api } from '@/lib/api-client'
 
 export const API = {

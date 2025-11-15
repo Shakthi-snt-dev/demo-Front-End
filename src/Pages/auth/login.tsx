@@ -39,13 +39,16 @@ export default function LoginPage() {
       const result = await dispatch(loginUser({ email: data.email, password: data.password }))
       
       if (loginUser.fulfilled.match(result)) {
+        // Show API response message or default message
+        const successMessage = result.payload.message || 'You have been successfully logged in.'
         toast({
           title: 'Welcome back!',
-          description: 'You have been successfully logged in.',
+          description: successMessage,
         })
         navigate('/dashboard')
       } else if (loginUser.rejected.match(result)) {
-        const errorMessage = result.error.message || 'Invalid credentials'
+        // Get error message from payload (rejectWithValue)
+        const errorMessage = (result.payload as string) || result.error?.message || 'Invalid credentials'
         toast({
           title: 'Login failed',
           description: errorMessage,

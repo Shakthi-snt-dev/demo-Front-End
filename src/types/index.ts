@@ -7,6 +7,7 @@ export type User = {
   avatar?: string
   role: string
   storeId?: string
+  isEmailVerified?: boolean
 }
 
 export type SignupData = {

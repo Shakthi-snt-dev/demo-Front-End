@@ -4,7 +4,9 @@
 import type { User, SignupData } from '@/types'
 export type { User, SignupData }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+// API Base URL - can be set via VITE_API_BASE_URL in .env file
+// Default: http://localhost:5113 (local development)
+const API_BASE_URL =  'http://localhost:5113/api'
 
 export class ApiError extends Error {
   status: number
@@ -28,9 +30,13 @@ async function request<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
   
+  // Check if body is FormData - don't set Content-Type for FormData
+  const isFormData = options.body instanceof FormData
+  
   const config: RequestInit = {
     headers: {
-      'Content-Type': 'application/json',
+      // Only set Content-Type if not FormData (browser will set it automatically for FormData)
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...options.headers,
     },
     ...options,
@@ -49,16 +55,41 @@ async function request<T>(
   try {
     const response = await fetch(url, config)
     
+    const responseData = await response.json().catch(() => ({}))
+    
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+      // Extract error message from various possible API response formats
+      // API may return: detail, title, message, or errors array
+      let errorMessage = 'Request failed'
+      
+      if (responseData.detail) {
+        errorMessage = responseData.detail
+      } else if (responseData.title) {
+        errorMessage = responseData.title
+      } else if (responseData.message) {
+        errorMessage = responseData.message
+      } else if (Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+        // Handle validation errors array
+        errorMessage = responseData.errors.map((err: any) => 
+          err.message || err.error || String(err)
+        ).join(', ')
+      } else if (typeof responseData === 'string') {
+        errorMessage = responseData
+      }
+      
       throw new ApiError(
-        errorData.message || 'Request failed',
+        errorMessage,
         response.status,
-        errorData
+        responseData
       )
     }
 
-    return await response.json()
+    // Return response with message extraction helper
+    return {
+      ...responseData,
+      _message: responseData.message || responseData.detail || 'Success',
+      _status: response.status,
+    }
   } catch (error) {
     if (error instanceof ApiError) {
       throw error
@@ -88,17 +119,70 @@ export const api = {
     request<T>(endpoint, { method: 'DELETE' }),
 }
 
-// Auth endpoints
+// Auth API Response Types
+export interface RegisterResponse {
+  status: boolean
+  message: string
+  userId: string
+  email: string
+  username: string
+  isEmailVerified: boolean
+  onboardingStep: number
+  _message?: string
+  _status?: number
+}
+
+export interface VerifyEmailResponse {
+  status: boolean
+  message: string
+  data: {
+    appUserId: string
+    onboardingStep: number
+  }
+  _message?: string
+  _status?: number
+}
+
+export interface LoginResponse {
+  status: boolean
+  message: string
+  data: {
+    token: string
+    message: string
+    appUserId: string
+    isEmailVerified: boolean
+    username: string
+    userType: string
+    lastLoginAt: string
+  }
+  _message?: string
+  _status?: number
+}
+
+// Auth endpoints - matching the actual API
 export const authApi = {
+  register: (data: { email: string; username: string; password: string; confirmPassword: string }) =>
+    api.post<RegisterResponse>('/Auth/register', data),
+  
+  verifyEmail: (token: string) =>
+    api.get<VerifyEmailResponse>(`/Auth/verify-email?token=${encodeURIComponent(token)}`),
+  
   login: (email: string, password: string) =>
-    api.post<{ token: string; user: User }>('/auth/login', { email, password }),
+    api.post<LoginResponse>('/Auth/login', { email, password }),
+  
+  // Legacy methods for backward compatibility
   signup: (data: SignupData) =>
-    api.post<{ token: string; user: User }>('/auth/signup', data),
+    api.post<RegisterResponse>('/Auth/register', { 
+      email: data.email, 
+      username: data.username, 
+      password: data.password, 
+      confirmPassword: data.password 
+    }),
+  
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }),
+  
   resetPassword: (token: string, password: string) =>
     api.post('/auth/reset-password', { token, password }),
-  verifyEmail: (token: string) =>
-    api.post('/auth/verify-email', { token }),
 }
 
