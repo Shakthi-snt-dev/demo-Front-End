@@ -227,6 +227,7 @@ export default function POSPage() {
     }
 
     try {
+      // StoreId will be extracted from JWT token on the backend
       const result = await dispatch(createCustomer({
         name: newCustomerName,
         email: newCustomerEmail || undefined,

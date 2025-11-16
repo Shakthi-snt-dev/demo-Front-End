@@ -32,19 +32,19 @@ const buildQueryString = (params?: Record<string, string | number | undefined>):
 export const authService = {
   // Register new user
   register: (data: { email: string; username: string; password: string; confirmPassword: string }) =>
-    api.post<RegisterResponse>('/Auth/register', data),
+    api.post<RegisterResponse>('/auth/register', data),
   
   // Verify email with token (GET request with query parameter)
   verifyEmail: (token: string) =>
-    api.get<VerifyEmailResponse>(`/Auth/verify-email?token=${encodeURIComponent(token)}`),
+    api.get<VerifyEmailResponse>(`/auth/verify-email?token=${encodeURIComponent(token)}`),
   
   // Login user
   login: (email: string, password: string) =>
-    api.post<LoginResponse>('/Auth/login', { email, password }),
+    api.post<LoginResponse>('/auth/login', { email, password }),
   
   // Legacy methods for backward compatibility
   signup: (data: { email: string; password: string; username: string }) =>
-    api.post<RegisterResponse>('/Auth/register', { 
+    api.post<RegisterResponse>('/auth/register', { 
       email: data.email, 
       username: data.username, 
       password: data.password, 
@@ -68,20 +68,21 @@ export const authService = {
 // USER PROFILE API
 // ============================================
 export const userService = {
-  getProfile: () =>
-    api.get<User>('/user/profile'),
+  getProfile: (appUserId: string) =>
+    api.get<User>(`/user/profile?appUserId=${appUserId}`),
   
-  updateProfile: (data: Partial<User>) =>
-    api.put<User>('/user/profile', data),
+  updateProfile: (appUserId: string, data: Partial<User>) =>
+    api.put<User>(`/user/profile?appUserId=${appUserId}`, data),
   
-  uploadAvatar: (file: File) => {
+  uploadAvatar: (appUserId: string, file: File) => {
     const formData = new FormData()
     formData.append('avatar', file)
+    formData.append('appUserId', appUserId)
     return api.post<{ avatar: string }>('/user/avatar', formData)
   },
   
-  changePassword: (currentPassword: string, newPassword: string) =>
-    api.post('/user/change-password', { currentPassword, newPassword }),
+  changePassword: (appUserId: string, currentPassword: string, newPassword: string) =>
+    api.post(`/user/change-password?appUserId=${appUserId}`, { currentPassword, newPassword }),
 }
 
 // ============================================
@@ -104,7 +105,7 @@ export const customersService = {
     api.delete(`/customers/${id}`),
   
   search: (query: string) =>
-    api.get(`/customers/search?q=${query}`),
+    api.get(`/customers/search?q=${encodeURIComponent(query)}`),
 }
 
 // ============================================
@@ -193,7 +194,7 @@ export const employeesService = {
     api.delete(`/employees/${id}`),
   
   updateRole: (id: string, role: string) =>
-    api.patch(`/employees/${id}/role`, { role }),
+    api.patch(`/employees/${id}/role`, { role: role }),
 }
 
 // ============================================
@@ -220,23 +221,35 @@ export const reportsService = {
 // SETTINGS API
 // ============================================
 export const settingsService = {
-  getStoreSettings: () =>
-    api.get('/settings/store'),
+  getSettings: (appUserId: string) =>
+    api.get(`/settings/user/${appUserId}`),
   
-  updateStoreSettings: (data: any) =>
-    api.put('/settings/store', data),
+  getStoreSettings: (appUserId: string) =>
+    api.get(`/settings/user/${appUserId}`),
   
-  getPOSSettings: () =>
-    api.get('/settings/pos'),
+  updateStoreSettings: (appUserId: string, data: any) =>
+    api.put(`/settings/user/${appUserId}/general`, data),
   
-  updatePOSSettings: (data: any) =>
-    api.put('/settings/pos', data),
+  getPOSSettings: (storeId: string) =>
+    api.get(`/settings/store/${storeId}/payment`),
   
-  getNotificationSettings: () =>
-    api.get('/settings/notifications'),
+  updatePOSSettings: (storeId: string, data: any) =>
+    api.put(`/settings/store/${storeId}/payment`, data),
   
-  updateNotificationSettings: (data: any) =>
-    api.put('/settings/notifications', data),
+  getNotificationSettings: (appUserId: string) =>
+    api.get(`/settings/user/${appUserId}/notifications`),
+  
+  updateNotificationSettings: (appUserId: string, data: any) =>
+    api.put(`/settings/user/${appUserId}/notifications`, data),
+  
+  updateInventorySettings: (storeId: string, data: any) =>
+    api.put(`/settings/store/${storeId}/inventory`, data),
+  
+  updatePassword: (appUserId: string, currentPassword: string, newPassword: string) =>
+    api.put(`/settings/user/${appUserId}/password`, { currentPassword, newPassword }),
+  
+  enableTwoFactor: (appUserId: string) =>
+    api.post(`/settings/user/${appUserId}/two-factor`),
 }
 
 // ============================================

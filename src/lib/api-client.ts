@@ -162,17 +162,17 @@ export interface LoginResponse {
 // Auth endpoints - matching the actual API
 export const authApi = {
   register: (data: { email: string; username: string; password: string; confirmPassword: string }) =>
-    api.post<RegisterResponse>('/Auth/register', data),
+    api.post<RegisterResponse>('/auth/register', data),
   
   verifyEmail: (token: string) =>
-    api.get<VerifyEmailResponse>(`/Auth/verify-email?token=${encodeURIComponent(token)}`),
+    api.get<VerifyEmailResponse>(`/auth/verify-email?token=${encodeURIComponent(token)}`),
   
   login: (email: string, password: string) =>
-    api.post<LoginResponse>('/Auth/login', { email, password }),
+    api.post<LoginResponse>('/auth/login', { email, password }),
   
   // Legacy methods for backward compatibility
   signup: (data: SignupData) =>
-    api.post<RegisterResponse>('/Auth/register', { 
+    api.post<RegisterResponse>('/auth/register', { 
       email: data.email, 
       username: data.username, 
       password: data.password, 
