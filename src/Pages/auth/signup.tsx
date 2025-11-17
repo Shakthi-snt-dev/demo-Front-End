@@ -29,7 +29,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { isLoading, error } = useAppSelector((state) => state.auth)
+  const { isLoading } = useAppSelector((state) => state.auth)
   const { toast } = useToast()
 
   const {
@@ -50,15 +50,14 @@ export default function SignupPage() {
       
       if (registerUser.fulfilled.match(result)) {
         // Show API response message or default message
-        const successMessage = result.payload.message || 'Account created successfully!'
+        const successMessage = result.payload.message || 'Account created successfully! Please check your email to verify your account.'
         toast({
           title: 'Success!',
           description: successMessage,
+          duration: 5000,
         })
-        // Simulate email verification redirect
-        setTimeout(() => {
-          navigate('/onboarding/profile')
-        }, 2000)
+        // User will be redirected to step verification after clicking email verification link
+        // The verify-email page will handle the redirect to /auth/step-verification
       } else if (registerUser.rejected.match(result)) {
         // Get error message from payload (rejectWithValue)
         const errorMessage = (result.payload as string) || result.error?.message || 'Something went wrong'

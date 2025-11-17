@@ -7,6 +7,8 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import LoginPage from '@/Pages/auth/login'
 import SignupPage from '@/Pages/auth/signup'
 import ForgotPasswordPage from '@/Pages/auth/forgot-password'
+import VerifyEmailPage from '@/Pages/auth/verify-email'
+import StepVerificationPage from '@/Pages/auth/stepvery'
 
 // Onboarding pages
 import ProfileSetupPage from '@/Pages/onboarding/profile-setup'
@@ -35,6 +37,15 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route
+          path="/auth/step-verification"
+          element={
+            <ProtectedRoute>
+              <StepVerificationPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Onboarding routes */}
         <Route
