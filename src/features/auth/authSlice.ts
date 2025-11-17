@@ -101,12 +101,50 @@ export const verifyEmail = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response: VerifyEmailResponse = await authApi.verifyEmail(token)
+      
+      // The API returns ApiResponseDto<VerifyEmailResponseDto>
+      // Structure: { status, message, data: { isVerified, message, appUserId, onboardingStep } }
+      console.log('VerifyEmail full response:', JSON.stringify(response, null, 2))
+      
+      const responseData = response.data
+      
+      if (!responseData) {
+        console.error('VerifyEmail response missing data:', response)
+        return rejectWithValue('Invalid response structure from server')
+      }
+      
+      console.log('VerifyEmail responseData:', JSON.stringify(responseData, null, 2))
+      
+      // Check if verification was successful
+      // The backend returns IsVerified in the data object
+      if (responseData.isVerified === false) {
+        return rejectWithValue(responseData.message || response.message || 'Email verification failed')
+      }
+      
+      // Extract appUserId - it might be null, string, or Guid
+      const appUserId = responseData.appUserId
+      
+      // Convert to string if it exists
+      let appUserIdString: string | null = null
+      if (appUserId) {
+        if (typeof appUserId === 'string') {
+          appUserIdString = appUserId
+        } else if (typeof appUserId === 'object' && appUserId !== null && 'toString' in appUserId) {
+          appUserIdString = (appUserId as any).toString()
+        } else {
+          appUserIdString = String(appUserId)
+        }
+      }
+      
+      console.log('VerifyEmail extracted appUserId:', appUserIdString)
+      
       return {
-        appUserId: response.data.appUserId,
-        onboardingStep: response.data.onboardingStep,
-        message: response.message || response._message || 'Email verified successfully',
+        appUserId: appUserIdString,
+        onboardingStep: responseData.onboardingStep || 1,
+        message: response.message || response._message || responseData.message || 'Email verified successfully',
       }
     } catch (error: any) {
+      console.error('VerifyEmail error:', error)
       // Extract the actual API error message
       const errorMessage = error?.message || error?.data?.detail || error?.data?.title || error?.data?.message || 'Email verification failed. Please try again.'
       return rejectWithValue(errorMessage)
@@ -134,6 +172,11 @@ const authSlice = createSlice({
         token: action.payload.token,
         isAuthenticated: true,
       }))
+      
+      // Update httpAccessor token
+      import('@/lib/http-accessor').then(({ httpAccessor }) => {
+        httpAccessor.setToken(action.payload.token)
+      })
     },
     logout: (state) => {
       state.user = null
@@ -144,6 +187,11 @@ const authSlice = createSlice({
       // Clear localStorage
       localStorage.removeItem('auth_token')
       localStorage.removeItem('auth-storage')
+      
+      // Clear httpAccessor token
+      import('@/lib/http-accessor').then(({ httpAccessor }) => {
+        httpAccessor.clearToken()
+      })
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {

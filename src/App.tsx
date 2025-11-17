@@ -9,6 +9,7 @@ import SignupPage from '@/Pages/auth/signup'
 import ForgotPasswordPage from '@/Pages/auth/forgot-password'
 import VerifyEmailPage from '@/Pages/auth/verify-email'
 import StepVerificationPage from '@/Pages/auth/stepvery'
+import StepsPage from '@/Pages/steps'
 
 // Onboarding pages
 import ProfileSetupPage from '@/Pages/onboarding/profile-setup'
@@ -26,7 +27,12 @@ import RepairsPage from '@/Pages/repairs/index'
 import CustomersPage from '@/Pages/customers/index'
 import ReportsPage from '@/Pages/reports/index'
 import SettingsPage from '@/Pages/settings/index'
+import ManageStoresPage from '@/Pages/settings/stores'
+import StoreTypesPage from '@/Pages/settings/store-types'
+import RolesPage from '@/Pages/settings/roles'
+import SecurityChecksPage from '@/Pages/settings/security-checks'
 import EmployeesPage from '@/Pages/employees/index'
+import AppUserAdminPage from '@/Pages/appuseradmin/index'
 import ChatPage from '@/Pages/chat/index'
 
 function App() {
@@ -38,6 +44,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/steps" element={<StepsPage />} />
         <Route
           path="/auth/step-verification"
           element={
@@ -147,6 +154,10 @@ function App() {
           }
         >
           <Route index element={<SettingsPage />} />
+          <Route path="stores" element={<ManageStoresPage />} />
+          <Route path="store-types" element={<StoreTypesPage />} />
+          <Route path="roles" element={<RolesPage />} />
+          <Route path="security-checks" element={<SecurityChecksPage />} />
         </Route>
 
         {/* Employees route */}
@@ -159,6 +170,18 @@ function App() {
           }
         >
           <Route index element={<EmployeesPage />} />
+        </Route>
+
+        {/* AppUserAdmin (Business Owners) route */}
+        <Route
+          path="/appuseradmin"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AppUserAdminPage />} />
         </Route>
 
         {/* Chat route */}

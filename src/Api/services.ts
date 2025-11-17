@@ -224,11 +224,28 @@ export const settingsService = {
   getSettings: (appUserId: string) =>
     api.get(`/settings/user/${appUserId}`),
   
-  getStoreSettings: (appUserId: string) =>
-    api.get(`/settings/user/${appUserId}`),
+  getUserProfile: (appUserId: string) =>
+    api.get(`/user/profile?appUserId=${appUserId}`),
   
-  updateStoreSettings: (appUserId: string, data: any) =>
-    api.put(`/settings/user/${appUserId}/general`, data),
+  updateUserProfile: (appUserId: string, data: any) =>
+    api.put(`/user/profile?appUserId=${appUserId}`, data),
+  
+  uploadAvatar: (appUserId: string, file: File) => {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    return api.post(`/user/avatar?appUserId=${appUserId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+  
+  getStoreSettings: (storeId: string) =>
+    api.get(`/settings/store/${storeId}`),
+  
+  updateStoreSettings: (storeId: string, data: any) =>
+    api.put(`/settings/store/${storeId}`, data),
+  
+  resetApiKey: (storeId: string) =>
+    api.post(`/settings/store/${storeId}/api-key/reset`),
   
   getPOSSettings: (storeId: string) =>
     api.get(`/settings/store/${storeId}/payment`),
@@ -245,11 +262,117 @@ export const settingsService = {
   updateInventorySettings: (storeId: string, data: any) =>
     api.put(`/settings/store/${storeId}/inventory`, data),
   
-  updatePassword: (appUserId: string, currentPassword: string, newPassword: string) =>
-    api.put(`/settings/user/${appUserId}/password`, { currentPassword, newPassword }),
+  updatePassword: (appUserId: string, data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+    api.put(`/settings/user/${appUserId}/password`, data),
+  
+  changePassword: (appUserId: string, data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+    api.post(`/user/change-password?appUserId=${appUserId}`, data),
   
   enableTwoFactor: (appUserId: string) =>
     api.post(`/settings/user/${appUserId}/two-factor`),
+}
+
+// ============================================
+// FORM CONFIGURATION API
+// ============================================
+export const formConfigurationService = {
+  getFormConfiguration: (formId: string, appUserId?: string, storeId?: string) => {
+    const params = new URLSearchParams()
+    if (appUserId) params.append('appUserId', appUserId)
+    if (storeId) params.append('storeId', storeId)
+    return api.get(`/formconfiguration/${formId}?${params.toString()}`)
+  },
+  
+  getUserProfileForm: (appUserId: string) =>
+    api.get(`/formconfiguration/user-profile/${appUserId}`),
+  
+  getStoreSettingsForm: (storeId: string) =>
+    api.get(`/formconfiguration/store-settings/${storeId}`),
+  
+  getEmployeeForm: (storeId?: string) => {
+    const params = storeId ? `?storeId=${storeId}` : ''
+    return api.get(`/formconfiguration/employee${params}`)
+  },
+}
+
+// ============================================
+// APP USER ADMIN API
+// ============================================
+export const appUserAdminService = {
+  getAll: (appUserId: string) =>
+    api.get(`/appuseradmin/appuser/${appUserId}`),
+  
+  getById: (id: string) =>
+    api.get(`/appuseradmin/${id}`),
+  
+  create: (appUserId: string, data: any) =>
+    api.post(`/appuseradmin?appUserId=${appUserId}`, data),
+  
+  update: (id: string, data: any) =>
+    api.put(`/appuseradmin/${id}`, data),
+  
+  delete: (id: string) =>
+    api.delete(`/appuseradmin/${id}`),
+}
+
+// ============================================
+// STORES API
+// ============================================
+export const storesService = {
+  getAll: () =>
+    api.get('/stores'),
+  
+  getById: (id: string) =>
+    api.get(`/stores/${id}`),
+  
+  getByType: (storeType: string) =>
+    api.get(`/stores/type/${storeType}`),
+  
+  create: (data: any) =>
+    api.post('/stores', data),
+  
+  update: (id: string, data: any) =>
+    api.put(`/stores/${id}`, data),
+  
+  delete: (id: string) =>
+    api.delete(`/stores/${id}`),
+}
+
+// ============================================
+// STORE TYPES API
+// ============================================
+export const storeTypesService = {
+  getAll: () =>
+    api.get('/storetypes'),
+  
+  create: (data: any) =>
+    api.post('/storetypes', data),
+  
+  delete: (name: string) =>
+    api.delete(`/storetypes/${name}`),
+}
+
+// ============================================
+// ROLES API
+// ============================================
+export const rolesService = {
+  getAll: () =>
+    api.get('/roles'),
+  
+  getById: (id: string) =>
+    api.get(`/roles/${id}`),
+  
+  getByName: (name: string) =>
+    api.get(`/roles/name/${name}`),
+  
+  create: (data: any) =>
+    api.post('/roles', data),
+  
+  update: (id: string, data: any) =>
+    api.put(`/roles/${id}`, data),
+  
+  delete: (id: string) =>
+    api.delete(`/roles/${id}`),
 }
 
 // ============================================

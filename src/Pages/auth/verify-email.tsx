@@ -38,9 +38,9 @@ export default function VerifyEmailPage() {
           title: 'Email Verified!',
           description: 'Your email has been successfully verified.',
         })
-        // Redirect to step verification after 2 seconds
+        // Redirect to steps component after 2 seconds
         setTimeout(() => {
-          navigate('/auth/step-verification')
+          navigate('/steps')
         }, 2000)
       } else if (verifyEmail.rejected.match(result)) {
         setVerificationStatus('error')

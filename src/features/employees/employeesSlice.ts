@@ -3,11 +3,13 @@ import { employeesService } from '@/Api/services'
 
 interface Employee {
   id: string
-  name: string
+  fullName?: string
+  name?: string // For backward compatibility
   email?: string
   phone?: string
-  role: string
+  role?: string
   position?: string
+  isActive?: boolean
   createdAt?: string
   updatedAt?: string
 }
@@ -44,13 +46,15 @@ export const fetchEmployees = createAsyncThunk(
   async (params?: { page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response: any = await employeesService.getAll(params)
+      // Handle ApiResponseDto structure: response.data.data contains the actual data
+      const employees = response.data?.data || response.data || response.items || []
       return {
-        employees: response.data || response.items || response,
-        message: response.message || response._message || 'Employees fetched successfully',
-        pagination: response.pagination || { page: params?.page || 1, limit: params?.limit || 10, total: response.total || 0 },
+        employees: Array.isArray(employees) ? employees : [],
+        message: response.data?.message || response.message || response._message || 'Employees fetched successfully',
+        pagination: response.data?.pagination || response.pagination || { page: params?.page || 1, limit: params?.limit || 10, total: Array.isArray(employees) ? employees.length : 0 },
       }
     } catch (error: any) {
-      const errorMessage = error?.message || error?.data?.detail || error?.data?.title || error?.data?.message || 'Failed to fetch employees'
+      const errorMessage = error?.response?.data?.message || error?.message || error?.data?.detail || error?.data?.title || error?.data?.message || 'Failed to fetch employees'
       return rejectWithValue(errorMessage)
     }
   }

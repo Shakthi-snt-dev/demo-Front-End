@@ -1,12 +1,9 @@
 // API Client structure for FlowTap
-// Replace with actual API endpoints when backend is ready
+// Uses HttpAccessor for token management and request handling
 
 import type { User, SignupData } from '@/types'
+import { httpAccessor } from './http-accessor'
 export type { User, SignupData }
-
-// API Base URL - can be set via VITE_API_BASE_URL in .env file
-// Default: http://localhost:5113 (local development)
-const API_BASE_URL =  'http://localhost:5113/api'
 
 export class ApiError extends Error {
   status: number
@@ -24,100 +21,21 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`
-  
-  // Check if body is FormData - don't set Content-Type for FormData
-  const isFormData = options.body instanceof FormData
-  
-  const config: RequestInit = {
-    headers: {
-      // Only set Content-Type if not FormData (browser will set it automatically for FormData)
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...options.headers,
-    },
-    ...options,
-  }
-
-  // Add auth token if available (from Redux store via localStorage sync)
-  // The token is synced to localStorage by the auth slice
-  const token = localStorage.getItem('auth_token')
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    } as HeadersInit
-  }
-
-  try {
-    const response = await fetch(url, config)
-    
-    const responseData = await response.json().catch(() => ({}))
-    
-    if (!response.ok) {
-      // Extract error message from various possible API response formats
-      // API may return: detail, title, message, or errors array
-      let errorMessage = 'Request failed'
-      
-      if (responseData.detail) {
-        errorMessage = responseData.detail
-      } else if (responseData.title) {
-        errorMessage = responseData.title
-      } else if (responseData.message) {
-        errorMessage = responseData.message
-      } else if (Array.isArray(responseData.errors) && responseData.errors.length > 0) {
-        // Handle validation errors array
-        errorMessage = responseData.errors.map((err: any) => 
-          err.message || err.error || String(err)
-        ).join(', ')
-      } else if (typeof responseData === 'string') {
-        errorMessage = responseData
-      }
-      
-      throw new ApiError(
-        errorMessage,
-        response.status,
-        responseData
-      )
-    }
-
-    // Return response with message extraction helper
-    return {
-      ...responseData,
-      _message: responseData.message || responseData.detail || 'Success',
-      _status: response.status,
-    }
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error
-    }
-    throw new ApiError('Network error', 0, error)
-  }
-}
-
+// Use httpAccessor for all API requests
+// This ensures tokens are automatically attached and requests are logged
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint, { method: 'GET' }),
+  get: <T>(endpoint: string) => httpAccessor.get<T>(endpoint),
   post: <T>(endpoint: string, data?: unknown) =>
-    request<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    httpAccessor.post<T>(endpoint, data),
   put: <T>(endpoint: string, data?: unknown) =>
-    request<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+    httpAccessor.put<T>(endpoint, data),
   patch: <T>(endpoint: string, data?: unknown) =>
-    request<T>(endpoint, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-  delete: <T>(endpoint: string) =>
-    request<T>(endpoint, { method: 'DELETE' }),
+    httpAccessor.patch<T>(endpoint, data),
+  delete: <T>(endpoint: string) => httpAccessor.delete<T>(endpoint),
 }
+
+// Export httpAccessor for direct use if needed
+export { httpAccessor }
 
 // Auth API Response Types
 export interface RegisterResponse {
@@ -136,8 +54,10 @@ export interface VerifyEmailResponse {
   status: boolean
   message: string
   data: {
-    appUserId: string
-    onboardingStep: number
+    isVerified?: boolean
+    message?: string
+    appUserId?: string | null
+    onboardingStep?: number
   }
   _message?: string
   _status?: number
