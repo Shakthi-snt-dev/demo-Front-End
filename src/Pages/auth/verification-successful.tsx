@@ -52,6 +52,11 @@ export default function VerificationSuccessfulPage() {
           title: alreadyVerified ? 'Email Already Verified' : 'Email Verified!',
           description: message,
         })
+        
+        // Auto-redirect to login after 2 seconds
+        setTimeout(() => {
+          navigate('/login')
+        }, 2000)
       } else {
         const errorMessage = (result.payload as string) || 'Invalid or expired verification token.'
         // Check if the error message indicates email is already verified or contains helpful info
@@ -61,8 +66,13 @@ export default function VerificationSuccessfulPage() {
           setIsAlreadyVerified(true)
           toast({
             title: 'Email Already Verified',
-            description: 'Your email has already been verified. You can proceed to login or continue setup.',
+            description: 'Your email has already been verified. You will be redirected to the login page shortly.',
           })
+          
+          // Auto-redirect to login after 2 seconds
+          setTimeout(() => {
+            navigate('/login')
+          }, 2000)
         } else {
           setVerificationError(errorMessage)
           toast({
@@ -266,8 +276,8 @@ export default function VerificationSuccessfulPage() {
             >
               <CardDescription className="text-base text-muted-foreground">
                 {isAlreadyVerified 
-                  ? 'Your email has already been verified successfully. You can proceed to login or continue with your profile setup.'
-                  : 'Your email has been successfully verified. You can now proceed to login and start using your account.'}
+                  ? 'Your email has already been verified successfully. You will be redirected to the login page shortly.'
+                  : 'Your email has been successfully verified. You will be redirected to the login page shortly.'}
               </CardDescription>
             </motion.div>
           </CardHeader>
@@ -293,38 +303,23 @@ export default function VerificationSuccessfulPage() {
               </div>
             </motion.div>
 
-            {/* Go to Steps Button */}
+            {/* Redirecting message */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
+              className="text-center"
             >
-              <Button
-                onClick={handleGoToSteps}
-                className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-6 text-base shadow-md hover:shadow-lg transition-all duration-200"
-                size="lg"
-              >
-                Continue Setup
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </motion.div>
-
-            {/* Additional info */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="text-center pt-2 space-y-2"
-            >
-              <p className="text-xs text-muted-foreground">
-                Complete your profile setup to get started
+              <p className="text-sm text-muted-foreground mb-4">
+                Redirecting to login page...
               </p>
               <Button
                 onClick={handleGoToLogin}
-                variant="ghost"
-                className="text-xs text-muted-foreground hover:text-foreground"
+                className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-6 text-base shadow-md hover:shadow-lg transition-all duration-200"
+                size="lg"
               >
-                Or go to login instead
+                Go to Login
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </motion.div>
           </CardContent>
