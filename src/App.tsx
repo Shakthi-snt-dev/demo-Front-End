@@ -10,6 +10,7 @@ import ForgotPasswordPage from '@/Pages/auth/forgot-password'
 import VerifyEmailPage from '@/Pages/auth/verify-email'
 import StepVerificationPage from '@/Pages/auth/stepvery'
 import StepsPage from '@/Pages/steps'
+import VerificationSuccessfulPage from '@/Pages/auth/verification-successful'
 
 // Onboarding pages
 import ProfileSetupPage from '@/Pages/onboarding/profile-setup'
@@ -44,6 +45,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/verification-successful" element={<VerificationSuccessfulPage />} />
         <Route path="/steps" element={<StepsPage />} />
         <Route path="/step-verification" element={<StepVerificationPage />} />
         <Route

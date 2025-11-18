@@ -138,10 +138,14 @@ export const verifyEmail = createAsyncThunk(
       
       console.log('VerifyEmail extracted appUserId:', appUserIdString)
       
+      // Prioritize responseData.message as it contains the specific verification message
+      // response.message might be a generic API success message
+      const verificationMessage = responseData.message || response.message || response._message || 'Email verified successfully'
+      
       return {
         appUserId: appUserIdString,
         onboardingStep: responseData.onboardingStep || 1,
-        message: response.message || response._message || responseData.message || 'Email verified successfully',
+        message: verificationMessage,
       }
     } catch (error: any) {
       console.error('VerifyEmail error:', error)
