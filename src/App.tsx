@@ -45,6 +45,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/steps" element={<StepsPage />} />
+        <Route path="/step-verification" element={<StepVerificationPage />} />
         <Route
           path="/auth/step-verification"
           element={
